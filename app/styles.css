@@ -1,0 +1,141 @@
+/* Import Modern Font */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+/* General Styles */
+body {
+    font-family: 'Poppins', sans-serif;
+    background: var(--background); /* Gunakan variable dari global.css */
+    background-attachment: fixed;
+    margin: 0;
+    padding: 0;
+    transition: background 0.3s ease-in-out;
+}
+
+/* Container */
+.container {
+    width: 60%;
+    margin: 20px auto;
+    background: white;
+    padding: 20px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 15px;
+}
+
+/* About Section */
+.about {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    text-align: left;
+    margin-bottom: 10px;
+    padding: 20px; 
+    background: linear-gradient(to right, #A1E3F9, #D1F8EF);
+    border-radius: 10px;
+}
+
+.profile-img2 {
+    width: 120px; 
+    height: auto; 
+    max-width: 100%;
+    max-height: 200px; 
+    object-fit: cover;
+    border-radius: 10%;
+    display: block;
+    margin-left: 50px; /* Tambahkan jarak antara teks dan foto */
+}
+
+.about-text {
+    flex-grow: 1;
+    text-align: left;
+}
+
+.about-text h1 {
+    font-weight: 600;
+    font-size: 28px;
+    color: black; /* Ubah warna teks nama menjadi hitam */
+}
+
+.about-text p {
+    font-weight: 400;
+    font-size: 18px;
+    color: #333;
+}
+
+/* Sections Layout */
+.section {
+    margin-bottom: 20px;
+}
+
+.section h2 {
+    background: linear-gradient(to right, #A1E3F9, #D1F8EF);
+    color: black;
+    padding: 10px;
+    border-radius: 15px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 22px;
+}
+
+/* Two Column Layout */
+.two-column {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.column {
+    width: 48%;
+}
+
+.content-box {
+    background: white;
+    padding: 10px;
+    border-radius: 15px;
+}
+
+/* List Styles */
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.icon-list {
+    padding: 0;
+}
+
+.icon-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.icon-item img {
+    margin-right: 10px;
+}
+
+li {
+    font-size: 16px;
+    font-weight: 400;
+    color: #555;
+}
+
+/* Contact Section */
+.contact {
+    text-align: center;
+    background: linear-gradient(to right, #A1E3F9, #D1F8EF);
+    color: black;
+    padding: 20px;
+    border-radius: 15px;
+    margin-top: 20px;
+}
+
+.contact h2 {
+    font-weight: 600;
+    font-size: 20px;
+}
+
+.contact p {
+    font-weight: 400;
+    font-size: 16px;
+}
