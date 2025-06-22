@@ -38,7 +38,8 @@ export default function Login() {
     'reni@gmail.com',
     'zikri@gmail.com',
     'kevvv@gmail.com',
-    'reggi@gmail.com'
+    'reggi@gmail.com',
+    'rena@gmail.com'
   ]
 
   // ✅ Cek verifikasi email, kecuali kalau email termasuk dummy
