@@ -29,12 +29,26 @@ export default function Login() {
     setError('')
 
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password)
-      const user = userCredential.user
-      
-      let userData = null
-      let userRole = 'user'
-      let userStatus = 'pending'
+  const userCredential = await signInWithEmailAndPassword(auth, email, password)
+  const user = userCredential.user
+
+  // ✅ List email dummy yang boleh bypass verifikasi
+  const bypassEmailVerification = [
+    'cipta@gmail.com',
+    'reni@gmail.com',
+    'zikri@gmail.com',
+    'kevvv@gmail.com',
+    'reggi@gmail.com'
+  ]
+
+  // ✅ Cek verifikasi email, kecuali kalau email termasuk dummy
+  if (!bypassEmailVerification.includes(user.email) && !user.emailVerified) {
+    throw new Error('Email belum diverifikasi. Silakan cek inbox email Anda untuk verifikasi.')
+  }
+
+  let userData = null
+  let userRole = 'user'
+  let userStatus = 'pending'
 
       // Check in 'users' collection
       const userDocRef = doc(db, 'users', user.uid)
