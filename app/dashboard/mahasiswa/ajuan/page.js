@@ -208,8 +208,7 @@ export default function AjukanMagangPage() {
       transition={{ duration: 0.3 }}
       className="max-w-3xl mx-auto space-y-6"
     >
-      <h2 className="text-xl font-semibold text-gray-800">Form Pengajuan Magang</h2>
-
+      
       {pengajuanUser ? (
         <div className={`p-6 rounded-md border ${getStatusColor(pengajuanUser.status)}`}>
           <h3 className="text-lg font-medium mb-2">Informasi Pengajuan</h3>
