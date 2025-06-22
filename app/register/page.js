@@ -64,6 +64,8 @@ export default function Register() {
       )
 
       await sendEmailVerification(userCredential.user)
+      window.alert('Verifikasi akun berhasil dibuat. Silakan cek email Anda untuk melakukan verifikasi sebelum login.')
+
 
       const userData = {
         name: formData.name,
@@ -144,7 +146,7 @@ export default function Register() {
                 required
                 value={formData.name}
                 onChange={handleChange}
-                className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 placeholder-gray-400"
+                className="w-full px-4 py-3 rounded-lg text-gray-900 border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 placeholder-gray-400"
                 placeholder="Nama lengkap Anda"
               />
             </div>
@@ -162,7 +164,7 @@ export default function Register() {
                   required
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 placeholder-gray-400"
+                  className="w-full px-4 py-3 rounded-lg border text-gray-900 border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 placeholder-gray-400"
                   placeholder="email@contoh.com"
                 />
                 <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
@@ -183,7 +185,7 @@ export default function Register() {
                 name="role"
                 value={formData.role}
                 onChange={handleChange}
-                className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 appearance-none"
+                className="w-full px-4 py-3 rounded-lg border text-gray-900 border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 appearance-none"
               >
                 <option value="mahasiswa">Mahasiswa</option>
                 <option value="dosen">Dosen</option>
@@ -204,7 +206,7 @@ export default function Register() {
                   type="password"
                   value={formData.adminCode}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 placeholder-gray-400"
+                  className="w-full px-4 py-3 rounded-lg text-gray-900 border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 placeholder-gray-400"
                   placeholder="Masukkan kode admin"
                 />
                 <p className="mt-1 text-xs text-gray-500">Hubungi administrator sistem untuk mendapatkan kode</p>
@@ -224,12 +226,12 @@ export default function Register() {
                   required
                   value={formData.password}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 placeholder-gray-400"
+                  className="w-full px-4 py-3 rounded-lg border text-gray-900 border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 placeholder-gray-400"
                   placeholder="••••••••"
                 />
                 <button
                   type="button"
-                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
+                  className="absolute inset-y-0 right-0 flex items-center  pr-3 text-gray-400 hover:text-gray-600"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? <FaEyeSlash /> : <FaEye />}
@@ -251,7 +253,7 @@ export default function Register() {
                   required
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 placeholder-gray-400"
+                  className="w-full px-4 py-3 rounded-lg border text-gray-900 border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 placeholder-gray-400"
                   placeholder="••••••••"
                 />
                 <button
