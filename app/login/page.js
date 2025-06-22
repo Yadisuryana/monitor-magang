@@ -31,9 +31,7 @@ export default function Login() {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password)
       const user = userCredential.user
-      if (!user.emailVerified) {
-        throw new Error('Email belum diverifikasi. Silakan cek inbox email Anda untuk verifikasi.')
-      }
+      
       let userData = null
       let userRole = 'user'
       let userStatus = 'pending'
