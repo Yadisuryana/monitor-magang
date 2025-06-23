@@ -34,7 +34,7 @@ const tabs = [
 
 export default function Page() {
   const router = useRouter()
-  const [activeTab, setActiveTab] = useState('dashboard')
+  const [activeTab, setActiveTab] = useState('ajukan')
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   const [windowWidth, setWindowWidth] = useState(0)
   const [userName, setUserName] = useState('mahasiswa')
@@ -48,17 +48,21 @@ export default function Page() {
       if (userStr) {
         try {
           const userObj = JSON.parse(userStr)
-          setUserName(userObj.nama || 'mahasiswa')
           setUserRole(userObj.role || null)
-        } catch {
-          setUserName('mahasiswa')
+          setUserName(userObj.name || 'Mahasiswa')
+        } catch (error) {
+          console.error('Error parsing user data:', error)
+          setUserName('Mahasiswa')
           setUserRole(null)
+        } finally {
+          setLoading(false)
         }
       } else {
-        setUserName('mahasiswa')
+        setUserName('Mahasiswa')
         setUserRole(null)
+        setLoading(false)
       }
-      setLoading(false)
+
     }
   }, [])
 
@@ -235,7 +239,7 @@ export default function Page() {
             Konten dari <span className="font-medium">{activeTab}</span> akan tampil di sini.
           </p> */}
 
-          {activeTab === 'dashboard' && (
+          {/* {activeTab === 'dashboard' && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <DashboardCard
                 title="Total Pengguna"
@@ -262,7 +266,7 @@ export default function Page() {
                 icon={<ClipboardList size={20} />}
               />
             </div>
-          )}
+          )} */}
           {activeTab === 'ajukan' && (
           <div className="space-y-6">
             <div className="flex justify-between items-center">
