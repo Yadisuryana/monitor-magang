@@ -63,7 +63,7 @@ export default function LandingPage() {
         <section className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-24">
           <div>
             <div className="inline-block px-4 py-2 rounded-full bg-white/80 backdrop-blur-sm text-blue-600 text-sm font-medium mb-6 shadow-sm font-sans">
-              ✨ Versi Terbaru 2024
+              ✨ Versi Terbaru 2025
             </div>
             
             <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight text-slate-800 font-clash tracking-tight">
