@@ -31,7 +31,11 @@ export default function LaporanBimbinganDosenPage() {
           where('pembimbingId', '==', user.uid)
         )
         const jadwalSnap = await getDocs(jadwalQuery)
-        const jadwalData = jadwalSnap.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+        const jadwalData = jadwalSnap.docs.map((doc) => ({ 
+          id: doc.id, 
+          ...doc.data(),
+          formattedDate: format(new Date(doc.data().tanggalBimbingan), 'dd MMM yyyy')
+        }))
         setJadwalList(jadwalData)
 
         const laporanQuery = query(
@@ -67,110 +71,143 @@ export default function LaporanBimbinganDosenPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">Laporan Bimbingan Mahasiswa</h1>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="bg-white rounded-lg shadow-sm p-6">
+        <h1 className="text-2xl font-bold text-gray-800 mb-6">Laporan Bimbingan Mahasiswa</h1>
 
-      {loading ? (
-        <p>Memuat data laporan...</p>
-      ) : laporanList.length === 0 ? (
-        <p>Belum ada laporan yang diunggah.</p>
-      ) : (
-        jadwalList.map((jadwal) => (
-          <div key={jadwal.id} className="mb-8">
-            <h2 className="text-lg font-semibold mb-3">
-              📅 {format(new Date(jadwal.tanggalBimbingan), 'dd MMM yyyy')} — {jadwal.topik}
-            </h2>
-            <table className="w-full border border-gray-300 text-sm">
-              <thead>
-                <tr className="bg-gray-100">
-                  <th className="border px-3 py-2 text-left">Mahasiswa</th>
-                  <th className="border px-3 py-2 text-left">Judul</th>
-                  <th className="border px-3 py-2 text-left">Link</th>
-                  <th className="border px-3 py-2 text-left">Status</th>
-                  <th className="border px-3 py-2 text-left">Catatan</th>
-                  <th className="border px-3 py-2 text-left">Aksi</th>
-                </tr>
-              </thead>
-              <tbody>
-                {laporanList.filter((l) => l.jadwalId === jadwal.id).length === 0 ? (
-                  <tr>
-                    <td colSpan="6" className="text-center py-3 text-gray-500">
-                      Belum ada laporan.
-                    </td>
-                  </tr>
-                ) : (
-                  laporanList
-                    .filter((l) => l.jadwalId === jadwal.id)
-                    .map((laporan) => (
-                      <tr key={laporan.id} className="hover:bg-gray-50">
-                        <td className="border px-3 py-2">{laporan.namaMahasiswa}</td>
-                        <td className="border px-3 py-2">{laporan.judul}</td>
-                        <td className="border px-3 py-2">
-                          <a
-                            href={laporan.linkLaporan}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 underline"
-                          >
-                            Lihat Laporan
-                          </a>
-                        </td>
-                        <td className="border px-3 py-2">
-                          <span
-                            className={
-                              laporan.status === 'diverifikasi'
-                                ? 'text-green-600 font-semibold'
-                                : laporan.status === 'ditolak'
-                                ? 'text-red-600 font-semibold'
-                                : 'text-yellow-600 font-semibold'
-                            }
-                          >
-                            {laporan.status}
-                          </span>
-                        </td>
-                        <td className="border px-3 py-2">
-                          {laporan.catatan ? (
-                            <div className="text-gray-700 text-sm">{laporan.catatan}</div>
-                          ) : (
-                            '-'
-                          )}
-                        </td>
-                        <td className="border px-3 py-2">
-                          {laporan.status === 'belum diverifikasi' && (
-                            <div className="space-y-2">
-                              <textarea
-                                value={catatanInput[laporan.id] || ''}
-                                onChange={(e) =>
-                                  setCatatanInput({ ...catatanInput, [laporan.id]: e.target.value })
-                                }
-                                placeholder="Tulis catatan..."
-                                className="border w-full text-sm p-1"
-                              />
-                              <div className="flex gap-1">
-                                <button
-                                  onClick={() => handleUpdateStatus(laporan.id, 'diverifikasi')}
-                                  className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs"
-                                >
-                                  Verifikasi
-                                </button>
-                                <button
-                                  onClick={() => handleUpdateStatus(laporan.id, 'ditolak')}
-                                  className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs"
-                                >
-                                  Tolak
-                                </button>
-                              </div>
-                            </div>
-                          )}
-                        </td>
-                      </tr>
-                    ))
-                )}
-              </tbody>
-            </table>
+        {loading ? (
+          <div className="flex justify-center py-8">
+            <p className="text-gray-600">Memuat data laporan...</p>
           </div>
-        ))
-      )}
+        ) : laporanList.length === 0 ? (
+          <div className="bg-gray-50 rounded-lg p-6 text-center">
+            <p className="text-gray-600">Belum ada laporan yang diunggah.</p>
+          </div>
+        ) : (
+          <div className="space-y-8">
+            {jadwalList.map((jadwal) => {
+              const laporanForJadwal = laporanList.filter((l) => l.jadwalId === jadwal.id)
+              
+              return (
+                <div key={jadwal.id} className="space-y-4">
+                  <div className="bg-blue-50 rounded-lg p-4">
+                    <h2 className="text-lg font-semibold text-blue-800">
+                      <span className="mr-2">📅</span>
+                      {jadwal.formattedDate} — {jadwal.topik}
+                    </h2>
+                  </div>
+
+                  {laporanForJadwal.length === 0 ? (
+                    <div className="bg-gray-50 rounded-lg p-4 text-center">
+                      <p className="text-gray-600">Belum ada laporan untuk sesi ini</p>
+                    </div>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50">
+                          <tr>
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Mahasiswa
+                            </th>
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Judul
+                            </th>
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Laporan
+                            </th>
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Status
+                            </th>
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Catatan
+                            </th>
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Aksi
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                          {laporanForJadwal.map((laporan) => (
+                            <tr key={laporan.id} className="hover:bg-gray-50">
+                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                {laporan.namaMahasiswa}
+                              </td>
+                              <td className="px-6 py-4 text-sm text-gray-800 max-w-xs">
+                                <div className="line-clamp-2">{laporan.judul}</div>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-600">
+                                <a
+                                  href={laporan.linkLaporan}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="hover:underline"
+                                >
+                                  Lihat Laporan
+                                </a>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                {laporan.status === 'diverifikasi' ? (
+                                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    Diverifikasi
+                                  </span>
+                                ) : laporan.status === 'ditolak' ? (
+                                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                    Ditolak
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                    Belum Diverifikasi
+                                  </span>
+                                )}
+                              </td>
+                              <td className="px-6 py-4 text-sm text-gray-800 max-w-xs">
+                                {laporan.catatan ? (
+                                  <div className="line-clamp-2">{laporan.catatan}</div>
+                                ) : (
+                                  <span className="text-gray-400">-</span>
+                                )}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {laporan.status === 'belum diverifikasi' && (
+                                  <div className="space-y-2">
+                                    <textarea
+                                      value={catatanInput[laporan.id] || ''}
+                                      onChange={(e) =>
+                                        setCatatanInput({ ...catatanInput, [laporan.id]: e.target.value })
+                                      }
+                                      placeholder="Tulis catatan..."
+                                      className="w-full border border-gray-300 rounded-md p-2 text-xs focus:ring-blue-500 focus:border-blue-500"
+                                      rows="2"
+                                    />
+                                    <div className="flex gap-2">
+                                      <button
+                                        onClick={() => handleUpdateStatus(laporan.id, 'diverifikasi')}
+                                        className="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                                      >
+                                        Verifikasi
+                                      </button>
+                                      <button
+                                        onClick={() => handleUpdateStatus(laporan.id, 'ditolak')}
+                                        className="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                                      >
+                                        Tolak
+                                      </button>
+                                    </div>
+                                  </div>
+                                )}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
     </div>
   )
 }
