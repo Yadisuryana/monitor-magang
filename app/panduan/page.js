@@ -14,7 +14,7 @@ export default function PanduanPage() {
       ]
     },
     { role: "Dosen", email: "reni@gmail.com", password: "reni123" },
-    { role: "Admin", email: "zikri@gmail.com", password: "zikri123" },
+    { role: "Admin | kodeadmin: ADMIN123", email: "zikri@gmail.com", password: "zikri123" },
     { role: "Orang Tua", email: "kevvv@gmail.com", password: "kevin123" },
     { role: "Mitra", email: "reggi@gmail.com", password: "reggi123" },
   ];
