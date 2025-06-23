@@ -20,10 +20,11 @@ import {
 } from 'lucide-react'
 
 import { db } from '../../../lib/firebase' // path ke firebase config
-import { doc, getDoc } from 'firebase/firestore'
+import { doc, getDoc, collection, getDocs } from 'firebase/firestore'
+
 
 const tabs = [
-  { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={14} /> },
+  { id: 'dashboard', label: 'Daftar Mahasiswa', icon: <LayoutDashboard size={14} /> },
   { id: 'logkegiatan', label: 'Kegiatan Mahasiswa', icon: <FileClock size={14} /> },
   { id: 'laporan', label: 'Laporan Mahasiswa', icon: <FileText size={14} /> },
   { id: 'bimbingan', label: 'Bimbingan', icon: <ClipboardList size={14} /> },
@@ -40,84 +41,121 @@ export default function Page() {
   const [loading, setLoading] = useState(true)
   const [userRole, setUserRole] = useState(null)
   const [userId, setUserId] = useState(null)
+  
+  const [summary, setSummary] = useState({
+  totalMahasiswa: 0,
+  totalLog: 0,
+  totalLaporan: 0,
+  bimbinganTerdekat: '-'
+})
 
-  // Get user data from localStorage and fetch name from Firestore
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const userStr = localStorage.getItem('user')
-      if (userStr) {
-        try {
-          const userObj = JSON.parse(userStr)
-          setUserRole(userObj.role || null)
-          setUserId(userObj.id) // Assuming you store the document ID in localStorage
-          
-          // Fetch user details from Firestore
-          const fetchUserName = async () => {
-            try {
-              // Adjust the collection name to 'dosen' according to your Firestore structure
-              const userDocRef = doc(db, 'dosen', userObj.id)
-              const userDocSnap = await getDoc(userDocRef)
-              
-              if (userDocSnap.exists()) {
-                const userData = userDocSnap.data()
-                // Use the appropriate field name from your document
-                setUserName(userData.nama || userData.name || 'Dosen')
-              } else {
-                console.log('No such document!')
-                setUserName('Dosen')
-              }
-            } catch (error) {
-              console.error('Error fetching user data:', error)
-              setUserName('Dosen')
-            } finally {
-              setLoading(false)
-            }
-          }
-          
-          fetchUserName()
-        } catch {
-          setUserName('Dosen')
-          setUserRole(null)
-          setLoading(false)
+
+
+// Ambil data user dari localStorage & Firestore
+useEffect(() => {
+  const fetchUserData = async () => {
+    if (typeof window === 'undefined') return
+
+    const userStr = localStorage.getItem('user')
+    if (!userStr) {
+      setUserName('Dosen')
+      setUserRole(null)
+      setLoading(false)
+      return
+    }
+
+    try {
+      const userObj = JSON.parse(userStr)
+      setUserRole(userObj.role || null)
+      setUserId(userObj.id || null)
+
+      if (userObj.id) {
+        const docRef = doc(db, 'users', userObj.id)
+        const docSnap = await getDoc(docRef)
+        if (docSnap.exists()) {
+          const data = docSnap.data()
+          setUserName(data.name || 'Dosen')
+        } else {
+          console.warn('User data not found in Firestore')
         }
-      } else {
-        setUserName('Dosen')
-        setUserRole(null)
-        setLoading(false)
       }
+    } catch (error) {
+      console.error('Error parsing user data:', error)
+      setUserName('Dosen')
+      setUserRole(null)
+    } finally {
+      setLoading(false)
     }
-  }, [])
-
-  // Validasi role: hanya role dosen yang bisa akses
-  useEffect(() => {
-    if (!loading && userRole !== 'dosen') {
-      // redirect ke halaman login atau halaman lain
-      router.replace('/login')
-    }
-  }, [loading, userRole, router])
-
-  // Handle responsive
-  useEffect(() => {
-    setWindowWidth(window.innerWidth)
-    const handleResize = () => setWindowWidth(window.innerWidth)
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
-  }, [])
-
-  // Logout function
-  const handleLogout = () => {
-    localStorage.removeItem('user')
-    localStorage.removeItem('userId')
-    router.replace('/login')
   }
 
-  // Jika tab logout, langsung trigger fungsi logout dan jangan render halaman
-  useEffect(() => {
-    if (activeTab === 'logout') {
-      handleLogout()
-    }
-  }, [activeTab])
+  fetchUserData()
+}, [])
 
+// Redirect kalau bukan dosen
+useEffect(() => {
+  if (!loading && userRole !== 'dosen') {
+    router.replace('/login')
+  }
+}, [loading, userRole, router])
+
+// Handle responsive window resize
+useEffect(() => {
+  const handleResize = () => setWindowWidth(window.innerWidth)
+  setWindowWidth(window.innerWidth)
+  window.addEventListener('resize', handleResize)
+  return () => window.removeEventListener('resize', handleResize)
+}, [])
+
+const handleLogout = () => {
+  localStorage.removeItem('user')
+  router.replace('/login')
+}
+
+// Logout langsung jika pilih tab logout
+useEffect(() => {
+  if (activeTab === 'logout') {
+    handleLogout()
+  }
+}, [activeTab])
+
+// Fetch summary dashboard
+useEffect(() => {
+  const fetchSummary = async () => {
+    try {
+      const pengajuanSnap = await getDocs(collection(db, 'pengajuanMagang'))
+      const logSnap = await getDocs(collection(db, 'logKegiatan'))
+      const laporanSnap = await getDocs(collection(db, 'laporanMagang'))
+      const bimbinganSnap = await getDocs(collection(db, 'jadwalBimbingan'))
+
+      const totalMahasiswa = pengajuanSnap.size
+      const totalLog = logSnap.size
+      const totalLaporan = laporanSnap.size
+
+      const bimbinganData = []
+      bimbinganSnap.forEach(doc => {
+        bimbinganData.push(doc.data())
+      })
+
+      const bimbinganTerdekat = bimbinganData.length > 0
+        ? bimbinganData.sort((a, b) => new Date(a.tanggal) - new Date(b.tanggal))[0].tanggal
+        : '-'
+
+      setSummary({
+        totalMahasiswa,
+        totalLog,
+        totalLaporan,
+        bimbinganTerdekat
+      })
+    } catch (error) {
+      console.error('Error fetching dashboard summary:', error)
+    }
+  }
+
+  fetchSummary()
+}, [])
+
+
+  
   const sidebarWidth = isSidebarOpen ? 240 : 0
   const isMobile = windowWidth <= 640
 
@@ -262,40 +300,16 @@ export default function Page() {
           </p> */}
 
           {activeTab === 'dashboard' && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <DashboardCard
-                title="Total Pengguna"
-                value="150 User"
-                color="text-blue-500"
-                icon={<ShieldCheck size={20} />}
-              />
-              <DashboardCard
-                title="Pengajuan Baru"
-                value="25 Pengajuan"
-                color="text-green-500"
-                icon={<FileClock size={20} />}
-              />
-              <DashboardCard
-                title="Laporan Bulanan"
-                value="12 Laporan"
-                color="text-orange-500"
-                icon={<FileText size={20} />}
-              />
-              <DashboardCard
-                title="Aktivitas Terakhir"
-                value="Hari ini"
-                color="text-purple-500"
-                icon={<ClipboardList size={20} />}
-              />
-            </div>
-          )}
-          {activeTab === 'dashboard' && (
-                      <div className="space-y-6">
-                        <div className="flex justify-between items-center">
-                        </div>
-                        <DosenDashboardPage />
-                      </div>
-                    )}
+  <div className="space-y-6">
+    {/* Card Statistik */}
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          </div>
+
+    {/* Komponen Tambahan */}
+    <DosenDashboardPage />
+  </div>
+)}
+
           {activeTab === 'logkegiatan' && (
              <div className="space-y-6">
                 <div className="flex justify-between items-center">
@@ -333,13 +347,18 @@ export default function Page() {
   )
 }
 
-function DashboardCard({ title, value, color, icon }) {
+function DashboardCard({ title, value, color, icon, onClick }) {
   return (
-    <div className="bg-white rounded-md shadow p-4 flex items-center gap-3 cursor-pointer hover:shadow-md transition-shadow">
-      <div className={`p-3 rounded-full bg-gray-100 ${color}`}>{icon}</div>
+    <div
+      onClick={onClick}
+      className="bg-white rounded-lg shadow p-4 flex items-center gap-3 cursor-pointer hover:shadow-md transition-all"
+    >
+      <div className={`p-3 rounded-full bg-gray-100 ${color}`}>
+        {icon}
+      </div>
       <div>
-        <p className="text-[10px] font-light">{title}</p>
-        <p className="text-xs font-semibold">{value}</p>
+        <p className="text-[10px] text-gray-500">{title}</p>
+        <p className="text-sm font-semibold text-gray-800">{value}</p>
       </div>
     </div>
   )
