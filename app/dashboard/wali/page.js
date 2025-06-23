@@ -26,7 +26,7 @@ const tabs = [
 
 export default function Page() {
   const router = useRouter()
-  const [activeTab, setActiveTab] = useState('dashboard')
+  const [activeTab, setActiveTab] = useState('laporanmhs')
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   const [windowWidth, setWindowWidth] = useState(0)
   const [userName, setUserName] = useState('wali')
@@ -40,17 +40,21 @@ export default function Page() {
       if (userStr) {
         try {
           const userObj = JSON.parse(userStr)
-          setUserName(userObj.nama || 'wali')
           setUserRole(userObj.role || null)
-        } catch {
-          setUserName('wali')
+          setUserName(userObj.name || 'Ortu')
+        } catch (error) {
+          console.error('Error parsing user data:', error)
+          setUserName('Ortu')
           setUserRole(null)
+        } finally {
+          setLoading(false)
         }
       } else {
-        setUserName('wali')
+        setUserName('Ortu')
         setUserRole(null)
+        setLoading(false)
       }
-      setLoading(false)
+
     }
   }, [])
 
