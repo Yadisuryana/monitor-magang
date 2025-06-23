@@ -30,7 +30,7 @@ const tabs = [
 
 export default function Page() {
   const router = useRouter()
-  const [activeTab, setActiveTab] = useState('dashboard')
+  const [activeTab, setActiveTab] = useState('verifikasi')
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   const [windowWidth, setWindowWidth] = useState(0)
   const [userName, setUserName] = useState('mitra')
@@ -44,17 +44,21 @@ export default function Page() {
       if (userStr) {
         try {
           const userObj = JSON.parse(userStr)
-          setUserName(userObj.nama || 'mitra')
           setUserRole(userObj.role || null)
-        } catch {
-          setUserName('mitra')
+          setUserName(userObj.name || 'Mitra')
+        } catch (error) {
+          console.error('Error parsing user data:', error)
+          setUserName('Mitra')
           setUserRole(null)
+        } finally {
+          setLoading(false)
         }
       } else {
-        setUserName('mitra')
+        setUserName('Mitra')
         setUserRole(null)
+        setLoading(false)
       }
-      setLoading(false)
+
     }
   }, [])
 
