@@ -1,5 +1,3 @@
-// ✅ Updated: app/dashboard/dosen/logkegiatan/page.js
-
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -42,7 +40,8 @@ export default function LogKegiatanDosenPage() {
           const logs = logSnapshot.docs.map(doc => ({
             id: doc.id,
             namaMahasiswa: pengajuan.nama,
-            ...doc.data()
+            ...doc.data(),
+            formattedDate: format(parseISO(doc.data().tanggal), 'dd MMM yyyy')
           }))
 
           allLogs = [...allLogs, ...logs]
@@ -75,67 +74,103 @@ export default function LogKegiatanDosenPage() {
   }, {})
 
   return (
-    <div className="max-w-5xl mx-auto p-6 space-y-6">
-      <h2 className="text-2xl font-bold">Log Kegiatan Mahasiswa Bimbingan</h2>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="bg-white rounded-lg shadow-sm p-6">
+        <h2 className="text-2xl font-bold text-gray-800 mb-6">Log Kegiatan Mahasiswa Bimbingan</h2>
 
-      {loading ? (
-        <p>Memuat data log...</p>
-      ) : logList.length === 0 ? (
-        <p>Belum ada log kegiatan yang diinput mahasiswa bimbingan.</p>
-      ) : (
-        Object.entries(groupedLogs).map(([nama, logs]) => (
-          <div key={nama} className="mb-8">
-            <h3 className="text-xl font-semibold mb-2">{nama}</h3>
-            <table className="w-full table-auto border border-gray-300 mb-4">
-              <thead>
-                <tr className="bg-gray-100">
-                  <th className="border p-2 text-left">Tanggal</th>
-                  <th className="border p-2 text-left">Kegiatan</th>
-                  <th className="border p-2 text-left">Keterangan</th>
-                  <th className="border p-2 text-left">Foto</th>
-                  <th className="border p-2 text-left">Status</th>
-                  <th className="border p-2 text-left">Aksi</th>
-                </tr>
-              </thead>
-              <tbody>
-                {logs.map((log, idx) => (
-                  <tr key={idx} className="hover:bg-gray-50">
-                    <td className="border p-2">{format(parseISO(log.tanggal), 'dd MMM yyyy')}</td>
-                    <td className="border p-2">{log.kegiatan}</td>
-                    <td className="border p-2">{log.keterangan}</td>
-                    <td className="border p-2">
-                      {log.fotoUrl ? (
-                        <a href={log.fotoUrl} target="_blank" rel="noopener noreferrer">
-                          <img src={log.fotoUrl} alt="Foto" className="w-20 h-auto rounded shadow" />
-                        </a>
-                      ) : (
-                        <span className="text-gray-400 italic">Tidak ada</span>
-                      )}
-                    </td>
-                    <td className="border p-2">
-                      {log.verifikasi ? (
-                        <span className="text-green-600 font-semibold">Terverifikasi</span>
-                      ) : (
-                        <span className="text-yellow-600">Belum</span>
-                      )}
-                    </td>
-                    <td className="border p-2">
-                      {!log.verifikasi && (
-                        <button
-                          onClick={() => handleVerifikasi(log.id)}
-                          className="bg-blue-600 text-white text-sm px-3 py-1 rounded hover:bg-blue-700"
-                        >
-                          Verifikasi
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        {loading ? (
+          <div className="flex justify-center py-8">
+            <p className="text-gray-600">Memuat data log...</p>
           </div>
-        ))
-      )}
+        ) : logList.length === 0 ? (
+          <div className="bg-gray-50 rounded-lg p-6 text-center">
+            <p className="text-gray-600">Belum ada log kegiatan yang diinput mahasiswa bimbingan.</p>
+          </div>
+        ) : (
+          <div className="space-y-8">
+            {Object.entries(groupedLogs).map(([nama, logs]) => (
+              <div key={nama} className="space-y-4">
+                <h3 className="text-xl font-semibold text-gray-700">{nama}</h3>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Tanggal
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Kegiatan
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Keterangan
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Foto
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Status
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Aksi
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {logs.map((log, idx) => (
+                        <tr key={idx} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {log.formattedDate}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                            {log.kegiatan}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-800 max-w-xs">
+                            <div className="line-clamp-2">{log.keterangan}</div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {log.fotoUrl ? (
+                              <a href={log.fotoUrl} target="_blank" rel="noopener noreferrer" className="inline-block">
+                                <img 
+                                  src={log.fotoUrl} 
+                                  alt="Foto kegiatan" 
+                                  className="w-16 h-16 object-cover rounded-md shadow-sm border border-gray-200 hover:border-blue-300 transition"
+                                />
+                              </a>
+                            ) : (
+                              <span className="text-gray-400 italic">-</span>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm">
+                            {log.verifikasi ? (
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                Terverifikasi
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                Belum
+                              </span>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {!log.verifikasi && (
+                              <button
+                                onClick={() => handleVerifikasi(log.id)}
+                                className="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                              >
+                                Verifikasi
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   )
 }
