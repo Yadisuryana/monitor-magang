@@ -20,14 +20,14 @@ import {
 } from 'lucide-react'
 
 import { db } from '../../../lib/firebase'
-import { doc, getDoc } from 'firebase/firestore'
+import { doc, getDoc, collection, getDocs } from 'firebase/firestore'
+
 
 const tabs = [
   { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={14} /> },
   { id: 'pengajuanMagang', label: 'Magang Mahasiswa', icon: <FileClock size={14} /> },
   { id: 'jadwal', label: 'Jadwal Magang', icon: <FileText size={14} /> },
   { id: 'AssignDosen', label: 'Assign Dosen', icon: <ClipboardList size={14} /> },
-  { id: 'laprak', label: 'Validasi Laporan', icon: <FileClock size={14} /> },
   { id: 'monitor', label: 'Monitor Progres', icon: <FileText size={14} /> },
   { id: 'akun', label: 'Manajemen Akun', icon: <ClipboardList size={14} /> },
   { id: 'logout', label: 'Logout', icon: <LogOut size={14} /> },
@@ -42,6 +42,13 @@ export default function Page() {
   const [userName, setUserName] = useState('Admin')
   const [loading, setLoading] = useState(true)
   const [userRole, setUserRole] = useState(null)
+  const [summary, setSummary] = useState({
+  totalUser: 0,
+  totalPengajuan: 0,
+  laporanBulanIni: 0,
+  lastAktivitas: '-'
+})
+
 
 // 1. Ambil data user dan cek role admin
   useEffect(() => {
@@ -51,31 +58,12 @@ export default function Page() {
         try {
           const userObj = JSON.parse(userStr)
           setUserRole(userObj.role || null)
-
-          const fetchUserName = async () => {
-            try {
-              const userDocRef = doc(db, 'admins', userObj.id)
-              const userDocSnap = await getDoc(userDocRef)
-
-              if (userDocSnap.exists()) {
-                const userData = userDocSnap.data()
-                setUserName(userData.nama || userData.name || 'Admin')
-              } else {
-                setUserName('Admin')
-              }
-            } catch (error) {
-              console.error('Error fetching user data:', error)
-              setUserName('Admin')
-            } finally {
-              setLoading(false)
-            }
-          }
-
-          fetchUserName()
+          setUserName(userObj.name || 'Admin')
         } catch (error) {
           console.error('Error parsing user data:', error)
           setUserName('Admin')
           setUserRole(null)
+        } finally {
           setLoading(false)
         }
       } else {
@@ -101,6 +89,43 @@ export default function Page() {
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
   }, [])
+
+  useEffect(() => {
+  const fetchSummary = async () => {
+    try {
+      const userSnap = await getDocs(collection(db, 'users'))
+      const pengajuanSnap = await getDocs(collection(db, 'pengajuanMagang'))
+      const laporanSnap = await getDocs(collection(db, 'laporanMagang'))
+
+      const totalUser = userSnap.size
+      const totalPengajuan = pengajuanSnap.docs.filter(doc => doc.data().status === 'pending').length
+
+      const bulanIni = new Date().getMonth()
+      const laporanBulanIni = laporanSnap.docs.filter(doc => {
+        const createdAt = doc.data().createdAt?.toDate()
+        return createdAt && createdAt.getMonth() === bulanIni
+      }).length
+
+      const lastAktivitas = pengajuanSnap.docs
+        .map(doc => doc.data().updatedAt?.toDate())
+        .filter(date => date)
+        .sort((a, b) => b - a)[0]
+
+      setSummary({
+        totalUser,
+        totalPengajuan,
+        laporanBulanIni,
+        lastAktivitas: lastAktivitas ? lastAktivitas.toLocaleDateString() : '-'
+      })
+
+    } catch (err) {
+      console.error('Error fetching summary:', err)
+    }
+  }
+
+  fetchSummary()
+}, [])
+
 
   // 4. Logout otomatis jika activeTab adalah 'logout'
   useEffect(() => {
@@ -220,18 +245,15 @@ export default function Page() {
           transition={{ type: 'spring', stiffness: 100, damping: 10 }}
         >
           {activeTab === 'dashboard' && (
-            <div>
-              {/* <p className="text-gray-500 mb-4">
-                Konten dari <span className="font-medium">{activeTab}</span> akan tampil di sini.
-              </p> */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <DashboardCard title="Total Pengguna" value="150 User" color="text-blue-500" icon={<ShieldCheck size={20} />} />
-                <DashboardCard title="Pengajuan Baru" value="25 Pengajuan" color="text-green-500" icon={<FileClock size={20} />} />
-                <DashboardCard title="Laporan Bulanan" value="12 Laporan" color="text-orange-500" icon={<FileText size={20} />} />
-                <DashboardCard title="Aktivitas Terakhir" value="Hari ini" color="text-purple-500" icon={<ClipboardList size={20} />} />
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <DashboardCard title="Total Pengguna" value={`${summary.totalUser} User`} color="text-blue-500" icon={<ShieldCheck size={20} />} />
+              <DashboardCard title="Pengajuan Baru" value={`${summary.totalPengajuan} Pengajuan`} color="text-green-500" icon={<FileClock size={20} />} />
+              <DashboardCard title="Laporan Bulanan" value={`${summary.laporanBulanIni} Laporan`} color="text-orange-500" icon={<FileText size={20} />} />
+              <DashboardCard title="Aktivitas Terakhir" value={summary.lastAktivitas} color="text-purple-500" icon={<ClipboardList size={20} />} />
             </div>
           )}
+
+
 
           {activeTab === 'akun' && (
             <div className="space-y-6">
