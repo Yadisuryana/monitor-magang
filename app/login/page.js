@@ -34,12 +34,12 @@ export default function Login() {
 
   // ✅ List email dummy yang boleh bypass verifikasi
   const bypassEmailVerification = [
-    'cipta@gmail.com',
-    'reni@gmail.com',
-    'zikri@gmail.com',
-    'kevvv@gmail.com',
-    'reggi@gmail.com',
-    'rena@gmail.com'
+    'cipta@gmail.com',//as mahasiswa(selsesai magang) pw 'cipta123',
+    'reni@gmail.com',//as dosen pw 'reni123',
+    'zikri@gmail.com',//as admin pw 'zikri123',
+    'kevvv@gmail.com',//as ortu pw  'kevin123',
+    'reggi@gmail.com',//as mitra pw 'reggi123',
+    'rena@gmail.com'//as mahasiswa pw 'rena123',
   ]
 
   // ✅ Cek verifikasi email, kecuali kalau email termasuk dummy
@@ -144,7 +144,7 @@ export default function Login() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 placeholder-gray-400"
+                  className="w-full px-4 py-3 rounded-lg text-gray-900 border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 placeholder-gray-400"
                   placeholder="email@example.com"
                 />
                 <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
@@ -169,7 +169,7 @@ export default function Login() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 placeholder-gray-400"
+                  className="w-full px-4 py-3 rounded-lg border text-gray-900 border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 placeholder-gray-400"
                   placeholder="••••••••"
                 />
                 <button
@@ -195,12 +195,12 @@ export default function Login() {
                 </label>
               </div>
 
-              <Link 
+              {/* <Link 
                 href="/forgot-password" 
                 className="text-sm font-medium text-blue-600 hover:text-blue-500 transition duration-200"
               >
                 Lupa password?
-              </Link>
+              </Link> */}
             </div>
 
             <button
